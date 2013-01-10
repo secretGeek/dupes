@@ -172,7 +172,7 @@
             Console.Write("Dupes.exe ");
             Console.ResetColor();
             Console.WriteLine("[options]");
-            Console.WriteLine("Tip: redirect output to a .csv file, and manipulate with excel.");
+            Console.WriteLine("Tip: redirect output to a .csv file, and manipulate with NimbleText.");
             Console.WriteLine();
             Console.WriteLine("Options:");
             p.WriteOptionDescriptions(Console.Out);
