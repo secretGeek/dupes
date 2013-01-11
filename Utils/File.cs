@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Security.Cryptography;
-
-namespace Dinomopabot.Utils
+﻿namespace Dinomopabot.Utils
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography;
+
     public static class FileUtils
     {
         public static string GetChecksum(string filePath)
         {
             using (var stream = new BufferedStream(File.OpenRead(filePath), 1200000))
             {
-                //MD5M ss = new MD5();
                 SHA256Managed sha = new SHA256Managed();
                 byte[] checksum = sha.ComputeHash(stream);
                 return BitConverter.ToString(checksum).Replace("-", String.Empty);

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Dinomopabot.Model
+﻿namespace Dinomopabot.Model
 {
+    using System.Collections.Generic;
+
     public class DuplicateSet
     {
         public string CheckSum { get; set; }

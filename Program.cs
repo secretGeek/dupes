@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
-    using System.Security.Cryptography;
-    using Mono.Options;
     using Dinomopabot.Model;
     using Dinomopabot.Utils;
+    using Mono.Options;
 
     class Settings
     {
@@ -85,7 +83,7 @@
                 {
                     c = FileUtils.GetChecksum(f);
                 }
-                catch (IOException)
+                catch (Exception)
                 {
                     errors++;
                     continue;
@@ -163,7 +161,6 @@
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("\r\nDupes"); Console.ResetColor();
-                //Console.WriteLine(" version " + AssemblyAttributes.AssemblyVersion.ToString());
                 Console.WriteLine(" Find duplicate files, by calculating checksums.\r\n");
             }
 
