@@ -38,7 +38,8 @@
                     { "?|h|help",   "show this message and exit", v => show_help = v != null },
             };
 
-            List<string> extra;
+ #pragma warning disable 219
+           List<string> extra;
             try
             {
                 extra = p.Parse(args);
