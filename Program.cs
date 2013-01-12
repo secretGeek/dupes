@@ -12,7 +12,7 @@
     {
         public Settings()
         {
-            Path = @"C:\";
+            Path = Environment.CurrentDirectory;
             Subdirectories = SearchOption.AllDirectories ;
             Filter = "*.*";
             All = false;
@@ -31,7 +31,7 @@
             bool show_help = false;
             var settings = new Settings();
             var p = new OptionSet() {
-                    { "p|path=",    "the folder to scan", v => settings.Path = v},
+                    { "p|path=",    "the folder to scan (defaults to current directory)", v => settings.Path = v},
                     { "s|subdirs",  "include subdirectories", v =>  settings.Subdirectories = v != null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly},
                     { "f|filter=",  "search filter (defaults to *.*)", v => settings.Filter = v},
                     { "a|all",      "show ALL checksums of files, even non-copies", v => settings.All = v != null},
@@ -53,8 +53,6 @@
                 Console.ResetColor();
                 return 1;
             }
-
-            if (args.Length == 0) show_help = true;
 
             if (p.UnrecognizedOptions != null && p.UnrecognizedOptions.Count > 0)
             {

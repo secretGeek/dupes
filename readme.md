@@ -12,7 +12,7 @@ Usage:
     
     Options:
 
-    -p, --path=VALUE           the folder to scan
+    -p, --path=VALUE           the folder to scan (defaults to current directory)
     -s, --subdirs              include subdirectories
     -f, --filter=VALUE         search filter (defaults to *.*)
     -a, --all                  show ALL checksums of files, even non-copies
