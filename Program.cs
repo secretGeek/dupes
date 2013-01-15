@@ -35,11 +35,14 @@
                     { "s|subdirs",  "include subdirectories", v =>  settings.Subdirectories = v != null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly},
                     { "f|filter=",  "search filter (defaults to *.*)", v => settings.Filter = v},
                     { "a|all",      "show ALL checksums of files, even non-copies", v => settings.All = v != null},
-                    { "?|h|help",   "show this message and exit", v => show_help = v != null },
+#if DEBUG
+					{ "d|debug",    "Show debug information", v => Debug.Listeners.Add(new ConsoleTraceListener())},
+#endif
+					{ "?|h|help",   "show this message and exit", v => show_help = v != null },
             };
 
  #pragma warning disable 219
-           List<string> extra;
+            List<string> extra;
             try
             {
                 extra = p.Parse(args);
@@ -66,8 +69,8 @@
                 return 0;
             }
 
-            Dictionary<String, DuplicateSet> h = new Dictionary<string, DuplicateSet>();
-            int fileNum = 0;
+			var duplicates = new Dictionary<string, DuplicateSet>();
+			int fileNum = 0;
             int dupes = 0;
             int errors = 0;
 
@@ -80,23 +83,77 @@
 
                 try
                 {
-                    c = FileUtils.GetChecksum(f);
-                }
+                    c = FileUtils.GetPartialChecksum(f, 4096);
+				}
                 catch (Exception)
                 {
                     errors++;
                     continue;
                 }
+				finally 
+				{
+                	Debug.WriteLine("Files: {0}, Dupes: {1}, Errors: {2}", fileNum, dupes, errors);
+				}
 
-                Debug.WriteLine("Files: {0}, Dupes: {1}, Errors: {2}", fileNum, dupes, errors);
+				Debug.WriteLine("- Checking: " + f);
+				DuplicateSet dupe = duplicates.ContainsKey(c) ? duplicates[c] : null;
 
-                if (h.ContainsKey(c))
+				if (dupe != null)
+				{
+					if (FileUtils.IsPartialChecksum(c))
+					{
+						Debug.WriteLine("Partial checksum coliding: " + f);
+						string fullCheckSum;
+						FileInfo fileInfo;
+						if (dupe.Locations.Count == 1)
+						{
+							// Now handle the FullCheckSum for the file, already in the Dictionary 
+							string fileName = dupe.Locations[0];
+							Debug.WriteLine("Calculating first full checksum: " + fileName);
+							fullCheckSum = FileUtils.GetChecksum(fileName);
+
+							fileInfo = new FileInfo(fileName);
+							DuplicateSet dupeSet = new DuplicateSet { 
+								CheckSum = fullCheckSum, 
+								Locations = new List<string>() { fileName }, 
+								FileSize = fileInfo.Length 
+							};
+							duplicates.Add(fullCheckSum, dupeSet);
+						}
+
+						// Now handle the FullCheckSum for the current (2nd, 3rd, ...) file 
+						fullCheckSum = FileUtils.GetChecksum(f);
+						// Add the location to the partial checksum
+						dupe.Locations.Add(f); 
+
+						if (duplicates.ContainsKey(fullCheckSum))
+						{
+							Debug.WriteLine("True dupe for: " + f);
+							dupe = duplicates[fullCheckSum];
+						}
+						else
+						{
+							Debug.WriteLine("False dupe for: " + f);
+							fileInfo = new FileInfo(f);
+							dupe = new DuplicateSet { 
+								CheckSum = fullCheckSum, 
+								Locations = new List<string>() { f }, 
+								FileSize = fileInfo.Length 
+							};
+							duplicates.Add(fullCheckSum, dupe);
+							continue;
+						}
+						c = fullCheckSum;
+					}
+					dupe.Locations.Add(f);
+				}
+
+                if (dupe != null)
                 {
                     dupes++;
-                    h[c].Locations.Add(f);
                     Debug.WriteLine("** " + f);
 
-                    if (h[c].Locations.Count == 2)
+                    if (dupe.Locations.Count == 2)
                     {
                         if (!headersWritten)
                         {
@@ -104,23 +161,22 @@
                             headersWritten = true;
                         }
 
-
                         //write out the first file.
                         Console.Write(c);
                         Console.Write("|");
                         Console.Write(0);
                         Console.Write("|");
-                        Console.Write(h[c].FileSize);
+                        Console.Write(dupe.FileSize);
                         Console.Write("|");
-                        Console.WriteLine(h[c].Locations[0]);
+                        Console.WriteLine(dupe.Locations[0]);
                     }
 
                     //write out the found file.
                     Console.Write(c);
                     Console.Write("|");
-                    Console.Write(h[c].Locations.Count - 1);
+                    Console.Write(dupe.Locations.Count - 1);
                     Console.Write("|");
-                    Console.Write(h[c].FileSize);
+                    Console.Write(dupe.FileSize);
                     Console.Write("|");
                     Console.WriteLine(f);
                 }
@@ -130,7 +186,7 @@
                     //var b = fi.Length;
                     var n = new DuplicateSet { CheckSum = c, Locations = new List<string>(), FileSize = fi.Length };
                     n.Locations.Add(f);
-                    h.Add(c, n);
+                    duplicates.Add(c, n);
                 }
             }
 
