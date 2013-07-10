@@ -20,9 +20,9 @@
                     { "f|filter=",  "search filter (defaults to *.*)", v => settings.Filter = v},
                     { "a|all",      "show ALL checksums of files, even non-copies", v => settings.All = v != null},
 #if DEBUG
-					{ "d|debug",    "Show debug information", v => Debug.Listeners.Add(new ConsoleTraceListener())},
+                    { "d|debug",    "Show debug information", v => Debug.Listeners.Add(new ConsoleTraceListener())},
 #endif
-					{ "?|h|help",   "show this message and exit", v => show_help = v != null },
+                    { "?|h|help",   "show this message and exit", v => show_help = v != null },
             };
 
  #pragma warning disable 219
@@ -53,8 +53,8 @@
                 return 0;
             }
 
-			var duplicates = new Dictionary<string, DuplicateSet>();
-			int fileNum = 0;
+            var duplicates = new Dictionary<string, DuplicateSet>();
+            int fileNum = 0;
             int dupes = 0;
             int errors = 0;
 
@@ -68,69 +68,69 @@
                 try
                 {
                     c = FileUtils.GetPartialChecksum(f, 4096);
-				}
+                }
                 catch (Exception)
                 {
                     errors++;
                     continue;
                 }
-				finally 
-				{
-                	Debug.WriteLine("Files: {0}, Dupes: {1}, Errors: {2}", fileNum, dupes, errors);
-				}
+                finally 
+                {
+                    Debug.WriteLine("Files: {0}, Dupes: {1}, Errors: {2}", fileNum, dupes, errors);
+                }
 
-				Debug.WriteLine("- Checking: " + f);
-				DuplicateSet dupe = duplicates.ContainsKey(c) ? duplicates[c] : null;
+                Debug.WriteLine("- Checking: " + f);
+                DuplicateSet dupe = duplicates.ContainsKey(c) ? duplicates[c] : null;
 
-				if (dupe != null)
-				{
-					if (FileUtils.IsPartialChecksum(c))
-					{
-						Debug.WriteLine("Partial checksum coliding: " + f);
-						string fullCheckSum;
-						FileInfo fileInfo;
-						if (dupe.Locations.Count == 1)
-						{
-							// Now handle the FullCheckSum for the file, already in the Dictionary 
-							string fileName = dupe.Locations[0];
-							Debug.WriteLine("Calculating first full checksum: " + fileName);
-							fullCheckSum = FileUtils.GetChecksum(fileName);
+                if (dupe != null)
+                {
+                    if (FileUtils.IsPartialChecksum(c))
+                    {
+                        Debug.WriteLine("Partial checksum coliding: " + f);
+                        string fullCheckSum;
+                        FileInfo fileInfo;
+                        if (dupe.Locations.Count == 1)
+                        {
+                            // Now handle the FullCheckSum for the file, already in the Dictionary 
+                            string fileName = dupe.Locations[0];
+                            Debug.WriteLine("Calculating first full checksum: " + fileName);
+                            fullCheckSum = FileUtils.GetChecksum(fileName);
 
-							fileInfo = new FileInfo(fileName);
-							DuplicateSet dupeSet = new DuplicateSet { 
-								CheckSum = fullCheckSum, 
-								Locations = new List<string>() { fileName }, 
-								FileSize = fileInfo.Length 
-							};
-							duplicates.Add(fullCheckSum, dupeSet);
-						}
+                            fileInfo = new FileInfo(fileName);
+                            DuplicateSet dupeSet = new DuplicateSet { 
+                                CheckSum = fullCheckSum, 
+                                Locations = new List<string>() { fileName }, 
+                                FileSize = fileInfo.Length 
+                            };
+                            duplicates.Add(fullCheckSum, dupeSet);
+                        }
 
-						// Now handle the FullCheckSum for the current (2nd, 3rd, ...) file 
-						fullCheckSum = FileUtils.GetChecksum(f);
-						// Add the location to the partial checksum
-						dupe.Locations.Add(f); 
+                        // Now handle the FullCheckSum for the current (2nd, 3rd, ...) file 
+                        fullCheckSum = FileUtils.GetChecksum(f);
+                        // Add the location to the partial checksum
+                        dupe.Locations.Add(f); 
 
-						if (duplicates.ContainsKey(fullCheckSum))
-						{
-							Debug.WriteLine("True dupe for: " + f);
-							dupe = duplicates[fullCheckSum];
-						}
-						else
-						{
-							Debug.WriteLine("False dupe for: " + f);
-							fileInfo = new FileInfo(f);
-							dupe = new DuplicateSet { 
-								CheckSum = fullCheckSum, 
-								Locations = new List<string>() { f }, 
-								FileSize = fileInfo.Length 
-							};
-							duplicates.Add(fullCheckSum, dupe);
-							continue;
-						}
-						c = fullCheckSum;
-					}
-					dupe.Locations.Add(f);
-				}
+                        if (duplicates.ContainsKey(fullCheckSum))
+                        {
+                            Debug.WriteLine("True dupe for: " + f);
+                            dupe = duplicates[fullCheckSum];
+                        }
+                        else
+                        {
+                            Debug.WriteLine("False dupe for: " + f);
+                            fileInfo = new FileInfo(f);
+                            dupe = new DuplicateSet { 
+                                CheckSum = fullCheckSum, 
+                                Locations = new List<string>() { f }, 
+                                FileSize = fileInfo.Length 
+                            };
+                            duplicates.Add(fullCheckSum, dupe);
+                            continue;
+                        }
+                        c = fullCheckSum;
+                    }
+                    dupe.Locations.Add(f);
+                }
 
                 if (dupe != null)
                 {
