@@ -1,8 +1,8 @@
 
 Created by [Leon Bambrick](http://secretGeek.net)
+withcontributions from Doeke Zanstra
 
-Dupes
-=====
+# Dupes
 
 Finds duplicate files, by calculating checksums.
 
@@ -20,8 +20,7 @@ Usage:
 
 
 
-How does it work?
-====
+## How does it work?
 
 For every member of a duplicate file set that the tool encounters, it spits out a row with four columns, separated by bar symbols ('|')
 
@@ -34,28 +33,27 @@ The four columns are:
 
 
 
-Tip
-====
-Redirect output to a .csv file, and manipulate the content with [NimbleText](http://NimbleText.com)
+## Tip
+
+Redirect output to a `.csv` file, and manipulate the content with [NimbleText](http://NimbleText.com)
 
 
-A pattern you could use in NimbleText for deleting all but the first copy of each file would be like this:
+Here's an example pattern you could use in NimbleText for deleting all but the first copy of each file:
 
-    <% if ($1 > 0) { 'del ' + $3 } %>
-====
+    <% if ($1 > 0) { 'del "' + $3 + '"' } %>
 
-That pattern is just a piece of embedded javascript (you can embed javascript in nimbleText patterns) that says:
 
-"if column 1 is greater than Zero, then output the text 'del ' plus the text from column 3."
+That pattern is just a piece of embedded javascript (you can embed javascript in NimbleText patterns) that says:
+
+> if column 1 is greater than Zero, then output the text 'del ' plus the text from column 3.
 
 Column 1 is the duplicate number, so it will be greater than zero for all but the first occurrence of each file. And column 3 is the full path and filename of the duplicate.
 
 
 
 
-Credits
-====
+## Credits
 
 
-Command line parsing uses the [Options class](https://github.com/mono/mono/blob/master/mcs/class/Mono.Options/Mono.Options/Options.cs) from [Mono](http://www.mono-project.com/)
-
+ * Command line parsing uses the [Options class](https://github.com/mono/mono/blob/master/mcs/class/Mono.Options/Mono.Options/Options.cs) from [Mono](http://www.mono-project.com/)
+ * Contributions from Doeke Zanstra
