@@ -67,14 +67,21 @@
 
                 try
                 {
-                    c = FileUtils.GetPartialChecksum(f, 4096);
+                    if (!settings.All)
+                    {
+                        c = FileUtils.GetPartialChecksum(f, 4096);
+                    }
+                    else
+                    {
+                        c = FileUtils.GetChecksum(f);
+                    }
                 }
                 catch (Exception)
                 {
                     errors++;
                     continue;
                 }
-                finally 
+                finally
                 {
                     Debug.WriteLine("Files: {0}, Dupes: {1}, Errors: {2}", fileNum, dupes, errors);
                 }
@@ -97,10 +104,11 @@
                             fullCheckSum = FileUtils.GetChecksum(fileName);
 
                             fileInfo = new FileInfo(fileName);
-                            DuplicateSet dupeSet = new DuplicateSet { 
-                                CheckSum = fullCheckSum, 
-                                Locations = new List<string>() { fileName }, 
-                                FileSize = fileInfo.Length 
+                            DuplicateSet dupeSet = new DuplicateSet
+                            {
+                                CheckSum = fullCheckSum,
+                                Locations = new List<string>() { fileName },
+                                FileSize = fileInfo.Length
                             };
                             duplicates.Add(fullCheckSum, dupeSet);
                         }
@@ -108,7 +116,7 @@
                         // Now handle the FullCheckSum for the current (2nd, 3rd, ...) file 
                         fullCheckSum = FileUtils.GetChecksum(f);
                         // Add the location to the partial checksum
-                        dupe.Locations.Add(f); 
+                        dupe.Locations.Add(f);
 
                         if (duplicates.ContainsKey(fullCheckSum))
                         {
@@ -119,10 +127,11 @@
                         {
                             Debug.WriteLine("False dupe for: " + f);
                             fileInfo = new FileInfo(f);
-                            dupe = new DuplicateSet { 
-                                CheckSum = fullCheckSum, 
-                                Locations = new List<string>() { f }, 
-                                FileSize = fileInfo.Length 
+                            dupe = new DuplicateSet
+                            {
+                                CheckSum = fullCheckSum,
+                                Locations = new List<string>() { f },
+                                FileSize = fileInfo.Length
                             };
                             duplicates.Add(fullCheckSum, dupe);
                             continue;
@@ -132,37 +141,68 @@
                     dupe.Locations.Add(f);
                 }
 
+                if (settings.All)
+                {
+                    if (!headersWritten)
+                    {
+                        Console.WriteLine("CheckSum|DuplicateNum|Filesize|Path");
+                        headersWritten = true;
+                    }
+
+                    //Just write out no matter what!
+                    Console.Write(c);
+                    Console.Write("|");
+                    if (dupe != null)
+                    {
+                        Console.Write(dupe.Locations.Count - 1);
+                        Console.Write("|");
+                        Console.Write(dupe.FileSize);
+                    }
+                    else
+                    {
+                        Console.Write("0");
+                        Console.Write("|");
+                        Console.Write(new FileInfo(f).Length);
+                    }
+                    
+                    Console.Write("|");
+                    Console.WriteLine(f);
+                }
+
                 if (dupe != null)
                 {
                     dupes++;
                     Debug.WriteLine("** " + f);
 
-                    if (dupe.Locations.Count == 2)
+                    if (!settings.All) //Not always writing results -- so we conditionally write them (i.e. when dupes are found....)
                     {
-                        if (!headersWritten)
+                        if (dupe.Locations.Count == 2)
                         {
-                            Console.WriteLine("CheckSum|DuplicateNum|Filesize|Path");
-                            headersWritten = true;
+                            if (!headersWritten)
+                            {
+                                Console.WriteLine("CheckSum|DuplicateNum|Filesize|Path");
+                                headersWritten = true;
+                            }
+
+                            //write out the first file.
+                            Console.Write(c);
+                            Console.Write("|");
+                            Console.Write(0);
+                            Console.Write("|");
+                            Console.Write(dupe.FileSize);
+                            Console.Write("|");
+                            Console.WriteLine(dupe.Locations[0]);
                         }
 
-                        //write out the first file.
+                        //write out the found file.
                         Console.Write(c);
                         Console.Write("|");
-                        Console.Write(0);
+                        Console.Write(dupe.Locations.Count - 1);
                         Console.Write("|");
                         Console.Write(dupe.FileSize);
                         Console.Write("|");
-                        Console.WriteLine(dupe.Locations[0]);
+                        Console.WriteLine(f);
                     }
-
-                    //write out the found file.
-                    Console.Write(c);
-                    Console.Write("|");
-                    Console.Write(dupe.Locations.Count - 1);
-                    Console.Write("|");
-                    Console.Write(dupe.FileSize);
-                    Console.Write("|");
-                    Console.WriteLine(f);
                 }
                 else
                 {
@@ -173,7 +213,7 @@
                     duplicates.Add(c, n);
                 }
             }
-
+            //Console.ReadLine();
             return 0;
         }
 

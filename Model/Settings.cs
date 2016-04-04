@@ -8,7 +8,7 @@
         public Settings()
         {
             Path = Environment.CurrentDirectory;
-            Subdirectories = SearchOption.AllDirectories;
+            Subdirectories = SearchOption.TopDirectoryOnly;
             Filter = "*.*";
             All = false;
         }
