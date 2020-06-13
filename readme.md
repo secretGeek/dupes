@@ -1,7 +1,3 @@
-
-Created by [Leon Bambrick](http://secretGeek.net)
-withcontributions from Doeke Zanstra
-
 # Dupes
 
 Finds duplicate files, by calculating checksums.
@@ -17,7 +13,6 @@ Usage:
     -f, --filter=VALUE         search filter (defaults to *.*)
     -a, --all                  show ALL checksums of files, even non-copies
     -?, -h, --help             show this message and exit
-
 
 
 ## How does it work?
@@ -52,8 +47,11 @@ Column 1 is the duplicate number, so it will be greater than zero for all but th
 
 
 
-## Credits
+## Credit
 
 
  * Command line parsing uses the [Options class](https://github.com/mono/mono/blob/master/mcs/class/Mono.Options/Mono.Options/Options.cs) from [Mono](http://www.mono-project.com/)
- * Contributions from Doeke Zanstra
+ * Contributions from [Doeke Zanstra](https://github.com/doekman)
+
+
+
